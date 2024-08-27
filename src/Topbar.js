@@ -3,8 +3,14 @@ import { faBars, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Link } from 'react-router-dom'
-
+import { jwtDecode } from 'jwt-decode';
+import {  decryptToken } from './hashToken';
 function Topbar() {
+    const token = decryptToken(localStorage.getItem('token'));
+    const decodedToken = jwtDecode(token);
+    const username = decodedToken.username;
+    // role decodedToken.authorities
+
     return (
         <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             {/* <!-- Sidebar Toggle (Topbar) --> */}
@@ -176,7 +182,7 @@ function Topbar() {
                 <li className="nav-item dropdown no-arrow">
                     <Link className="nav-link dropdown-toggle" to="/" id="userDropdown" role="button"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                        <span className="mr-2 d-none d-lg-inline text-gray-600 small">{username}</span>
                         <FontAwesomeIcon icon={faCircleUser} size={"xl"} />
                     </Link>
                     {/* <!-- Dropdown - User Information --> */}

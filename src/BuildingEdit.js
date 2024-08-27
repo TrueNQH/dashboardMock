@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import {  decryptToken } from './hashToken';
 
 function BuildingEdit() {
     const params = useParams();
@@ -16,11 +17,33 @@ function BuildingEdit() {
         bathRoom: 0,
         juridical: "",
         area: "",
-        categoryId: 1
+        categoryId: 1,
+        image: "",
+        direction: "",
+        juridical: "",
+        priceDescription: "",
     });
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
-   
+     const token = decryptToken(localStorage.getItem('token'));
+    const [categoryData, setCategoryData] = useState([]);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const categoryData = await axios.get('http://localhost:8080/category/list', {
+                    headers: {
+                        Authorization: token
+                    }
+                });
+                setCategoryData(categoryData.data.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                setLoading(false);
+            }
+        }
+        fetchCategories();
+    }, [token]);
     useEffect(() => {
         getUserData();
     }, []);
@@ -46,7 +69,37 @@ function BuildingEdit() {
             [name]: value
         });
     }
-
+    const handleImageUpload = async (e) => {
+        const files = e.target.files;
+        const uploadPromises = [];
+        setLoading(true);
+      
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', 'cloudinaryApp'); // Thay bằng upload preset của bạn từ Cloudinary
+      
+          const uploadPromise = axios.post(
+            'https://api.cloudinary.com/v1_1/dt0kv3yml/image/upload', // Thay bằng Cloudinary URL của bạn cho image
+            formData
+          ).then(response => response.data.secure_url);
+      
+          uploadPromises.push(uploadPromise);
+        }
+      
+        try {
+          const uploadedUrls = await Promise.all(uploadPromises);
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            image: uploadedUrls.join(','), // Lưu tất cả URL vào formData, phân tách bằng dấu phẩy
+          }));
+          setLoading(false);
+        } catch (error) {
+          console.error('Error uploading files:', error);
+          setLoading(false);
+        }
+      };
     
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -64,12 +117,12 @@ function BuildingEdit() {
 
     return (
         <>
-            <h3>BuildingEdit - Id: {params.id}</h3>
+            <h3>Chỉnh Sửa Thông Tin Tòa Nhà - Id: {params.id}</h3>
             <div className='container'>
-                <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
                     <div className='row'>
                         <div className="col-lg-6">
-                            <label>BuildingName</label>
+                            <label>Tên Tòa Nhà</label>
                             <input
                                 name='buildingName'
                                 value={formData.buildingName}
@@ -80,7 +133,7 @@ function BuildingEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>street</label>
+                            <label>Đường</label>
                             <input
                                 name='street'
                                 value={formData.street}
@@ -91,7 +144,7 @@ function BuildingEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>ward</label>
+                            <label>Phường</label>
                             <input
                                 name='ward'
                                 value={formData.ward}
@@ -102,7 +155,7 @@ function BuildingEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>district</label>
+                            <label>Quận</label>
                             <input
                                 name='district'
                                 value={formData.district}
@@ -112,8 +165,8 @@ function BuildingEdit() {
                             />
                         </div>
 
-                        <div className="col-lg-4">
-                            <label>price</label>
+                        <div className="col-lg-3">
+                            <label>Giá cả</label>
                             <input
                                 name='price'
                                 value={formData.price}
@@ -122,8 +175,38 @@ function BuildingEdit() {
                                 className='form-control'
                             />
                         </div>
-                        <div className="col-lg-4">
-                            <label>bathRoom</label>
+                        <div className="col-lg-3">
+                            <label>Giá bằng chữ</label>
+                            <input
+                                name='priceDescription'
+                                value={formData.priceDescription}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Giấy tờ pháp lý</label>
+                            <input
+                                name='juridical'
+                                value={formData.juridical}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Hướng Nhà</label>
+                            <input
+                                name='direction'
+                                value={formData.direction}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Phòng bếp</label>
                             <input
                                 name='bathRoom'
                                 value={formData.bathRoom}
@@ -132,8 +215,8 @@ function BuildingEdit() {
                                 className='form-control'
                             />
                         </div>
-                        <div className="col-lg-4">
-                            <label>bedRoom</label>
+                        <div className="col-lg-3">
+                            <label>Phòng Ngủ</label>
                             <input
                                 name='bedRoom'
                                 value={formData.bedRoom}
@@ -142,9 +225,29 @@ function BuildingEdit() {
                                 className='form-control'
                             />
                         </div>
+                        <div className="col-lg-3">
+                            <label>Diện tích tổng</label>
+                            <input
+                                name='area'
+                                value={formData.area}
+                                onChange={handleChange}
+                                type="number"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Địa chỉ map</label>
+                            <input
+                                name='map'
+                                value={formData.map}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
 
-                        <div className='col-lg-4'>
-                            <label>isRent</label>
+                        <div className='col-lg-3'>
+                            <label>Cho thuê</label>
                             <select
                                 name='isRent'
                                 value={formData.isRent}
@@ -156,8 +259,8 @@ function BuildingEdit() {
                                 <option value="false">false</option>
                             </select>
                         </div>
-                        <div className='col-lg-4'>
-                            <label>isSell</label>
+                        <div className='col-lg-3'>
+                            <label>Đang Bán</label>
                             <select
                                 name='isSell'
                                 value={formData.isSell}
@@ -169,22 +272,32 @@ function BuildingEdit() {
                                 <option value="false">false</option>
                             </select>
                         </div>
-                        <div className='col-lg-4'>
-                            <label>CategoryID</label>
+                        <div className='col-lg-3'>
+                            <label>Loại</label>
                             <select
                                 name='categoryId'
                                 value={formData.categoryId}
                                 onChange={handleChange}
                                 className='form-control'
                             >
-                                <option value="">----Select----</option>
-                                <option value="1">Residential</option>
-                                <option value="2">Commercial</option>
-                                <option value="3">Commercial</option>
+                               <option value="">----Select----</option>
+                                {categoryData.map((category) => (
+                                    <option key={category.categoryId} value={category.categoryId}>
+                                        {category.categoryDes}
+                                    </option>
+                                ))}
                             </select>
                         </div>
-
-                        <div className='col-lg-4 mt-3'>
+                        <div className="col-lg-6">
+                            <label>Upload Image</label>
+                            <input
+                                type="file"
+                                className="form-control"
+                                onChange={handleImageUpload}
+                                multiple
+                            />
+                        </div>
+                        <div className='col-lg-3 mt-3'>
                             <input
                                 disabled={isLoading}
                                 type="submit"

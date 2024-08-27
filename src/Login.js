@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { jwtDecode } from 'jwt-decode';
+import { hashToken, decryptToken } from './hashToken';
 function Login() {
     const navigate = useNavigate();  // Sử dụng để chuyển hướng sau khi đăng nhập thành công
-
+    useEffect(() => {
+        let token = localStorage.getItem('token');
+        
+        if(token!=null) {
+            
+            
+            navigate('/portal/dashboard');
+        }
+    }, [])
+   
     async function handleSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());  // Chuyển FormData thành object
-       
+        
+        
         
         try {
             const response = await axios.post('http://localhost:8080/auth/login', data, {
@@ -17,21 +28,26 @@ function Login() {
                     'Content-Type': 'application/json',
                 },
             });
-                console.log(response.data.jwtToken);
+                
                 
             // Giả sử phản hồi trả về token và thông tin người dùng
           
-                
-                
+                const token = response.data.jwtToken;
+                const decodedToken = jwtDecode(token);
                 // Lưu token vào localStorage (hoặc sessionStorage)
-                 localStorage.setItem('token', response.data.jwtToken);
-
+                    if(decodedToken.authorities == "ROLE_MANAGER" || decodedToken.authorities == "ROLE_STAFF") {
+                    localStorage.setItem('token', hashToken(token));
+                        navigate('/portal/dashboard');
+                    }
+                    else {
+                        alert("Bạn không có quyền truy cập");
+                    }
                 // Chuyển hướng đến trang dashboard
-                 navigate('/portal/dashboard');
+                 
             
         } catch (error) {
             console.error('Login failed:', error);
-            alert('Login failed. Please check your credentials.');
+            //alert('Login failed. Please check your credentials.');
         }
     }
 

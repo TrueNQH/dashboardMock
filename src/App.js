@@ -15,13 +15,21 @@ import BuildingList from './BuildingList';
 import BuildingCreate from './BuildingCreate';
 import BuildingEdit from './BuildingEdit';
 import BuildingView from './BuildingView';
+import CategoryList from './CategoryList';
+import CategoryCreate from './CategoryCreate';
+import CategoryEdit from './CategoryEdit';
 
+import NewsList from './NewsList';
+import NewsCreate from './NewsCreate';
+import NewsEdit from './NewsEdit';
+import NewsView from './NewsView';
+import Staff from './Staff';
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Login />} />
-
+      
         <Route path='/portal' element={<Portal />}>
           <Route path='dashboard' element={<Dashboard />} />
           <Route path='user-list' element={<Userlist />} />
@@ -33,6 +41,22 @@ function App() {
           <Route path='create-building' element={<BuildingCreate />} />
           <Route path='building-edit/:id' element={<BuildingEdit />} />
           <Route path='building-view/:id' element={<BuildingView />} />
+
+          <Route path='category-list' element={<CategoryList/>} />
+          <Route path='create-category' element={<CategoryCreate />} />
+          <Route path='category-edit/:id' element={<CategoryEdit />} />
+          
+
+          <Route path='news-list' element={<NewsList/>} />
+          <Route path='create-news' element={<NewsCreate />} />
+          <Route path='news-edit/:id' element={<NewsEdit />} />
+          <Route path='news-view/:id' element={<NewsView />} />
+        </Route>
+        <Route path='/staff' element={<Staff />} >
+        <Route path='news-list' element={<NewsList/>} />
+          <Route path='create-news' element={<NewsCreate />} />
+          <Route path='news-edit/:id' element={<NewsEdit />} />
+          <Route path='news-view/:id' element={<NewsView />} />
         </Route>
       </Routes>
     </BrowserRouter>

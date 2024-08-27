@@ -3,12 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import {  decryptToken } from './hashToken';
 
 function BuildingList() {
 
   const [dataList, setDataList] = useState([]);
   const [isLoading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
+   const token = decryptToken(localStorage.getItem('token'));
   useEffect(() => {
     //On Load
     getDatas();
@@ -17,7 +18,7 @@ function BuildingList() {
 
   let getDatas = async () => {
     try {
-      const datas = await axios.get("http://localhost:8080/api/building/building-list?page=&pageSize=20", {
+      const datas = await axios.get("http://localhost:8080/api/building/building-list", {
         headers: {
           Authorization: token
         }
@@ -27,21 +28,22 @@ function BuildingList() {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      alert("Phiên đăng nhập đã hết hạn");
+      navigator("/")
     }
   }
 
   let handleDelete = async (id) => {
-    let data = []
-    data.push(id)
-    console.log(data);
+    
     
     try {
       const confirmDelete = window.confirm("Are you sure do you want to delete the data?");
       if (confirmDelete) {
-        await axios.delete(`http://localhost:8080/api/building`, data, {
+        await axios.delete(`http://localhost:8080/api/building/${id}`,{
           headers: {
             Authorization: token
           }
+          
         
         }
         
@@ -58,16 +60,16 @@ function BuildingList() {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">Building-List</h1>
+        <h1 className="h3 mb-0 text-gray-800">Danh Sách Tòa Nhà</h1>
         <Link to="/portal/create-building" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
           <FontAwesomeIcon icon={faUser} className="creatinguser mr-2" />
-          Create Building
+          Thêm Tòa Nhà
         </Link>
       </div>
       {/* <!-- DataTables --> */}
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">DataTables</h6>
+          <h6 className="m-0 font-weight-bold text-primary">Dữ liệu Bảng</h6>
         </div>
         <div className="card-body">
           {
@@ -76,13 +78,13 @@ function BuildingList() {
                 <table className="table table-bordered" id="dataTable" width="100%" cellSpacing="0">
                   <thead>
                     <tr>
-                    <th>buildingId</th>
-                    <th>buildingName</th>
-                    <th>address</th>
-                    <th>area</th>
-                    <th>price</th>
-                    <th>mangerName</th>
-                    <th>Action</th>
+                    <th>Id</th>
+                    <th>Tên Tòa nhà</th>
+                    <th>Địa chỉ</th>
+                    <th>Diện tích</th>
+                    <th>Giá </th>
+                    
+                    <th>Hành động</th>
                     </tr>
                   </thead>
                   
@@ -96,12 +98,12 @@ function BuildingList() {
                           <td>{data.address}</td>
                           <td>{data.area}</td>
                           <td>{data.price}</td>
-                          <td>{data.mangerName }</td>
+                          
                          
                           <th>
-                            <Link to={`/portal/building-view/${data.buildingId}`} className='btn btn-primary btn-sm mr-1'>View</Link>
-                            <Link to={`/portal/building-edit/${data.buildingId}`} className='btn btn-info btn-sm mr-1'>Edit</Link>
-                            <button onClick={() => handleDelete(data.buildingId)} className='btn btn-danger btn-sm mr-1'>Delete</button>
+                            <Link to={`/portal/building-view/${data.buildingId}`} className='btn btn-primary btn-sm mr-1'>Xem</Link>
+                            <Link to={`/portal/building-edit/${data.buildingId}`} className='btn btn-info btn-sm mr-1'>Sửa</Link>
+                            <button onClick={() => handleDelete(data.buildingId)} className='btn btn-danger btn-sm mr-1'>Xóa</button>
                           </th>
                         </tr>
                       )

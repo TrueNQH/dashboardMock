@@ -5,26 +5,26 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import {  decryptToken } from './hashToken';
 
-function Userlist() {
+function NewsList() {
 
-  const [userList, setUserList] = useState([]);
+  const [dataList, setDataList] = useState([]);
   const [isLoading, setLoading] = useState(true);
    const token = decryptToken(localStorage.getItem('token'));
   useEffect(() => {
     //On Load
-    getUsers();
-    
+    getDatas();
+   
   }, []);
 
-  let getUsers = async () => {
+  let getDatas = async () => {
     try {
-      const users = await axios.get("http://localhost:8080/user-manage/list?page=&pageSize=20", {
+      const datas = await axios.get("http://localhost:8080/api/news/list", {
         headers: {
           Authorization: token
         }
       });
-      setUserList(users.data.data);
-      
+      setDataList(datas.data.data);
+     
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -32,13 +32,23 @@ function Userlist() {
   }
 
   let handleDelete = async (id) => {
+    
+    
     try {
       const confirmDelete = window.confirm("Are you sure do you want to delete the data?");
       if (confirmDelete) {
-        await axios.delete(`http://localhost:8080/user-manage/${id}`).then((res) => {
+        await axios.delete(`http://localhost:8080/api/news/${id}`, {
+          headers: {
+            Authorization: token
+          }
+          
+        
+        }
+        
+        ).then((res) => {
           console.log(res);
         });
-        getUsers();
+        getDatas();
       }
     } catch (error) {
       console.log(error);
@@ -48,16 +58,16 @@ function Userlist() {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">Quản Lý Tài Khoản</h1>
-        <Link to="/portal/create-user" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <h1 className="h3 mb-0 text-gray-800">Bản Tin</h1>
+        <Link to="/portal/create-news" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
           <FontAwesomeIcon icon={faUser} className="creatinguser mr-2" />
-          Tạo Tài Khoản
+          Tạo Bản Tin
         </Link>
       </div>
       {/* <!-- DataTables --> */}
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Bảng Dữ Liệu</h6>
+          <h6 className="m-0 font-weight-bold text-primary">Dữ Liệu Bảng</h6>
         </div>
         <div className="card-body">
           {
@@ -67,44 +77,31 @@ function Userlist() {
                   <thead>
                     <tr>
                     <th>Id</th>
-                    <th>Tên Đăng Nhập</th>
-                    <th>Họ Tên</th>
-                    <th>E-Mail</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Vai Trò</th>
+                    <th>Tiêu đề</th>
+                    <th>Nội Dung</th>
+                    <th>Tạo Bởi</th>
+                    <th>Chỉnh Sửa Bởi</th>
+                    
                     <th>Hành Động</th>
                     </tr>
                   </thead>
                   
                   <tbody>
-                    {userList.map((user) => {
-                      switch(user.roleId){
-                        case 1:
-                          user.roleId = "Quản Lý";
-                          break;
-                        case 2:
-                          user.roleId = "Nhân Viên";
-                          break;
-                        case 3:
-                          user.roleId = "Khách Hàng";
-                          break;
-                        default:
-                          user.roleId = "Unknown";
-                          break;
-                      }
+                    {dataList.map((data) => {
+                     
                       return (
                         <tr>
-                          <td>{user.userId}</td>
-                          <td>{user.userName}</td>
-                          <td>{user.fullName}</td>
-                          <td>{user.email}</td>
-                          <td>{user.phone}</td>
-                          <td>{user.roleId }</td>
+                          <td>{data.newsId}</td>
+                          <td>{data.title}</td>
+                          <td>{data.content}</td>
+                          <td>{data.createdBy}</td>
+                          <td>{data.modifiedBy}</td>
+                          
                          
                           <th>
-                           
-                            <Link to={`/portal/user-edit/${user.userId}`} className='btn btn-info btn-sm mr-1'>Sửa</Link>
-                            <button onClick={() => handleDelete(user.userId)} className='btn btn-danger btn-sm mr-1'>Xóa</button>
+                            <Link to={`/portal/news-view/${data.newsId}`} className='btn btn-primary btn-sm mr-1'>View</Link>
+                            <Link to={`/portal/news-edit/${data.newsId}`} className='btn btn-info btn-sm mr-1'>Edit</Link>
+                            <button onClick={() => handleDelete(data.newsId)} className='btn btn-danger btn-sm mr-1'>Delete</button>
                           </th>
                         </tr>
                       )
@@ -120,4 +117,4 @@ function Userlist() {
   )
 }
 
-export default Userlist
+export default NewsList

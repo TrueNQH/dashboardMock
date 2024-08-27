@@ -1,12 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import {  decryptToken } from './hashToken';
 
 function UserView() {
     const params = useParams();
     const [userList, setUserList] = useState([]);
     const [isLoading, setLoading] = useState(true);
-    const token = localStorage.getItem('token');
+     const token = decryptToken(localStorage.getItem('token'));
+    
     useEffect(() => {
         //On Load
        

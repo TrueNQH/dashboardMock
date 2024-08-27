@@ -1,11 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import {  decryptToken } from './hashToken';
 
 function BuildingCreate() {
     const params = useParams();
     const [isLoading, setLoading] = useState(false);
-    const [img, setImg] = useState([])
     const [formData, setFormData] = useState({
         district: "",
         ward: "",
@@ -18,14 +18,34 @@ function BuildingCreate() {
         juridical: "",
         area: "",
         categoryId: 1,
-        image: ""
+        image: "",
+        direction: "",
+        juridical: "",
+        priceDescription: "",
+
     });
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
-   
-   
+     const token = decryptToken(localStorage.getItem('token'));
+    const [categoryData, setCategoryData] = useState([]);
 
-    
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const categoryData = await axios.get('http://localhost:8080/category/list', {
+                    headers: {
+                        Authorization: token
+                    }
+                });
+                setCategoryData(categoryData.data.data);
+                setLoading(false);
+            } catch (error) {
+                console.log(error);
+                setLoading(false);
+            }
+        }
+        fetchCategories();
+    }, [token]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -81,12 +101,12 @@ function BuildingCreate() {
 
     return (
         <>
-            <h3>BuildingCreate - Id: {params.id}</h3>
+            <h3>Tạo Tòa Nhà</h3>
             <div className='container'>
                 <form onSubmit={handleSubmit}>
                     <div className='row'>
                         <div className="col-lg-6">
-                            <label>BuildingName</label>
+                            <label>Tên Tòa Nhà</label>
                             <input
                                 name='buildingName'
                                 value={formData.buildingName}
@@ -97,7 +117,7 @@ function BuildingCreate() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>street</label>
+                            <label>Đường</label>
                             <input
                                 name='street'
                                 value={formData.street}
@@ -108,7 +128,7 @@ function BuildingCreate() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>ward</label>
+                            <label>Phường</label>
                             <input
                                 name='ward'
                                 value={formData.ward}
@@ -119,7 +139,7 @@ function BuildingCreate() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>district</label>
+                            <label>Quận</label>
                             <input
                                 name='district'
                                 value={formData.district}
@@ -129,8 +149,8 @@ function BuildingCreate() {
                             />
                         </div>
 
-                        <div className="col-lg-4">
-                            <label>price</label>
+                        <div className="col-lg-3">
+                            <label>Giá cả</label>
                             <input
                                 name='price'
                                 value={formData.price}
@@ -139,8 +159,38 @@ function BuildingCreate() {
                                 className='form-control'
                             />
                         </div>
-                        <div className="col-lg-4">
-                            <label>bathRoom</label>
+                        <div className="col-lg-3">
+                            <label>Giá bằng chữ</label>
+                            <input
+                                name='priceDescription'
+                                value={formData.priceDescription}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Giấy tờ pháp lý</label>
+                            <input
+                                name='juridical'
+                                value={formData.juridical}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Hướng Nhà</label>
+                            <input
+                                name='direction'
+                                value={formData.direction}
+                                onChange={handleChange}
+                                type="text"
+                                className='form-control'
+                            />
+                        </div>
+                        <div className="col-lg-3">
+                            <label>Phòng bếp</label>
                             <input
                                 name='bathRoom'
                                 value={formData.bathRoom}
@@ -149,7 +199,7 @@ function BuildingCreate() {
                                 className='form-control'
                             />
                         </div>
-                        <div className="col-lg-4">
+                        <div className="col-lg-3">
                             <label>Phòng Ngủ</label>
                             <input
                                 name='bedRoom'
@@ -159,7 +209,7 @@ function BuildingCreate() {
                                 className='form-control'
                             />
                         </div>
-                        <div className="col-lg-4">
+                        <div className="col-lg-3">
                             <label>Diện tích tổng</label>
                             <input
                                 name='area'
@@ -169,7 +219,7 @@ function BuildingCreate() {
                                 className='form-control'
                             />
                         </div>
-                        <div className="col-lg-4">
+                        <div className="col-lg-3">
                             <label>Địa chỉ map</label>
                             <input
                                 name='map'
@@ -180,8 +230,8 @@ function BuildingCreate() {
                             />
                         </div>
 
-                        <div className='col-lg-4'>
-                            <label>isRent</label>
+                        <div className='col-lg-3'>
+                            <label>Cho thuê</label>
                             <select
                                 name='isRent'
                                 value={formData.isRent}
@@ -193,8 +243,8 @@ function BuildingCreate() {
                                 <option value="false">false</option>
                             </select>
                         </div>
-                        <div className='col-lg-4'>
-                            <label>isSell</label>
+                        <div className='col-lg-3'>
+                            <label>Đang Bán</label>
                             <select
                                 name='isSell'
                                 value={formData.isSell}
@@ -206,18 +256,20 @@ function BuildingCreate() {
                                 <option value="false">false</option>
                             </select>
                         </div>
-                        <div className='col-lg-4'>
-                            <label>CategoryID</label>
+                        <div className='col-lg-3'>
+                            <label>Loại</label>
                             <select
                                 name='categoryId'
                                 value={formData.categoryId}
                                 onChange={handleChange}
                                 className='form-control'
                             >
-                                <option value="">----Select----</option>
-                                <option value="1">Residential</option>
-                                <option value="2">Commercial</option>
-                                <option value="3">Commercial</option>
+                               <option value="">----Select----</option>
+                                {categoryData.map((category) => (
+                                    <option key={category.categoryId} value={category.categoryId}>
+                                        {category.categoryDes}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div className="col-lg-6">
@@ -229,7 +281,7 @@ function BuildingCreate() {
                                 multiple
                             />
                         </div>
-                        <div className='col-lg-4 mt-3'>
+                        <div className='col-lg-3 mt-3'>
                             <input
                                 disabled={isLoading}
                                 type="submit"

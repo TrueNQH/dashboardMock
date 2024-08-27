@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import {  decryptToken } from './hashToken';
 
 function UserEdit() {
     const params = useParams();
@@ -15,8 +16,8 @@ function UserEdit() {
         roleId: 0
     });
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
-   
+     const token = decryptToken(localStorage.getItem('token'));
+    
     useEffect(() => {
         getUserData();
     }, []);
@@ -42,37 +43,29 @@ function UserEdit() {
             [name]: value
         });
     }
-    const data = {
-   
-            
-        "email": "staff01aa@example.com",
-        "fullName": "NguyenHaauy111",
-        "isActive": true,
-        
-        "phone": "0123456791",
-        "roleId": 3,
-        "userId": 2,
-        "userName": "staff011aaa"
-        
-        }
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             console.log(formData);
             
            // setLoading(true);
-           await axios.post(`http://localhost:8080/user-manage/`, 
-            data
+           let res = await axios.post(`http://localhost:8080/user-manage`, 
+            formData
            , {
                 headers: {
                     'Authorization': token,
                     
                 }
             }).then((res) => {
-                console.log(res.data);
+                console.log(res.data.message);
+                
             })
-            //navigate("/portal/user-list");
-            
+
+            if(res.data.message == "Successfully") {
+                navigate("/portal/user-list");
+
+                }
             
         } catch (error) {
             console.log(error);
@@ -82,12 +75,12 @@ function UserEdit() {
 
     return (
         <>
-            <h3>UserEdit - Id: {params.id}</h3>
+            <h3>Chỉnh Sửa Thông Tin {params.id}</h3>
             <div className='container'>
                 <form onSubmit={handleSubmit}>
                     <div className='row'>
                         <div className="col-lg-6">
-                            <label>Name</label>
+                            <label>Tên Đăng Nhập</label>
                             <input
                                 name='userName'
                                 value={formData.userName}
@@ -109,7 +102,7 @@ function UserEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>Phone</label>
+                            <label>Số Điện Thoại</label>
                             <input
                                 name='phone'
                                 value={formData.phone}
@@ -120,7 +113,7 @@ function UserEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>Full Name</label>
+                            <label>Họ Tên</label>
                             <input
                                 name='fullName'
                                 value={formData.fullName}
@@ -131,18 +124,22 @@ function UserEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>Role ID</label>
-                            <input
-                                name='roleId'
-                                value={formData.roleId}
+                            <label>Vai Trò</label>
+                            <select
+                                name='roleID'
+                                value={formData.roleID}
                                 onChange={handleChange}
-                                type="text"
                                 className='form-control'
-                            />
+                            >
+                                <option value="">----Chọn----</option>
+                                <option value="1">Quản Lý</option>
+                                <option value="2">Nhân Viên</option>
+                                <option value="3">Khách Hàng</option>
+                            </select>
                         </div>
 
                         <div className='col-lg-4'>
-                            <label>Is Active</label>
+                            <label>Kích Hoạt</label>
                             <select
                                 name='isActive'
                                 value={formData.isActive}
@@ -150,8 +147,8 @@ function UserEdit() {
                                 className='form-control'
                             >
                                 <option value="">----Select----</option>
-                                <option value="true">true</option>
-                                <option value="false">false</option>
+                                <option value="true">Hoạt Động</option>
+                                <option value="false">Ngừng Hoạt Động</option>
                             </select>
                         </div>
 

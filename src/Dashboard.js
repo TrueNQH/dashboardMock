@@ -10,6 +10,7 @@ import { faDownload } from '@fortawesome/free-solid-svg-icons';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title);
 
 function Dashboard() {
+    
     return (
         <>
             <div className="d-sm-flex align-items-center justify-content-between mb-4">

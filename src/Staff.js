@@ -4,11 +4,8 @@ import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import Userlist from './Userlist'
 
-function Portal() {
-  const token = localStorage.getItem('token');
-  if(!token){
-    window.location.href = '/';
-  }
+function Staff() {
+  
   return (
     <>
       <div id="wrapper">
@@ -26,5 +23,5 @@ function Portal() {
   )
 }
 
-export default Portal
+export default Staff
 
