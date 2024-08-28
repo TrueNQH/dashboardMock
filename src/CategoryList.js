@@ -10,6 +10,8 @@ function CategoryList() {
   const [dataList, setDataList] = useState([]);
   const [isLoading, setLoading] = useState(true);
    const token = decryptToken(localStorage.getItem('token'));
+   
+   
   useEffect(() => {
     //On Load
     getDatas();
@@ -18,7 +20,7 @@ function CategoryList() {
 
   let getDatas = async () => {
     try {
-      const datas = await axios.get("http://localhost:8080/category/list", {
+      const datas = await axios.get("http://localhost:8080/category/list?page=&pageSize=20", {
         headers: {
           Authorization: token
         }
@@ -39,7 +41,7 @@ function CategoryList() {
     try {
       const confirmDelete = window.confirm("Are you sure do you want to delete the data?");
       if (confirmDelete) {
-        await axios.delete(`http://localhost:8080/category/list/${id}` ,{
+        await axios.delete(`http://localhost:8080/category/${id}` ,{
           headers: {
             Authorization: token
           }

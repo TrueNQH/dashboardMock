@@ -116,7 +116,7 @@ function NewsCreate() {
 
                         <div className="col-lg-12" >
                             <label>Nội dung</label>
-                            <ReactQuill  value={formData.content} onChange={handleContentChange} />
+                            <ReactQuill   onChange={handleContentChange} />
                            
                         </div>
 

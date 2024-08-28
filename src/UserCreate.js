@@ -1,10 +1,12 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, {  useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {  decryptToken } from './hashToken';
 
 function UserCreate() {
-    const params = useParams();
+    
     const [isLoading, setLoading] = useState(false);
+    const [errorMessages, setErrorMessages] = useState({});
     const [formData, setFormData] = useState({
         userName: "",
         email: "",
@@ -15,9 +17,46 @@ function UserCreate() {
         roleId: 0
     });
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
+     const token = decryptToken(localStorage.getItem('token'));
    
-    
+     const validateForm = () => {
+        let errors = {};
+        
+        if (!formData.userName) {
+            errors.userName = "Tên tài khoản là bắt buộc.";
+        }
+        if (!formData.email) {
+            errors.email = "Email là bắt buộc.";
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                errors.email = "Email không hợp lệ.";
+            }
+        }
+        if (!formData.password || formData.password.length < 6) {
+            errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+        }
+        if (!formData.fullName) {
+            errors.fullName = "Họ tên là bắt buộc.";
+        }
+        if (!formData.phone) {
+            errors.phone = "Số điện thoại là bắt buộc.";
+        } else {
+            const phoneRegex = /^\d{10,}$/;
+            if (!phoneRegex.test(formData.phone)) {
+                errors.phone = "Số điện thoại không hợp lệ (ít nhất 10 chữ số).";
+            }
+        }
+        if (!formData.roleId) {
+            errors.roleId = "Vui lòng chọn vai trò.";
+        }
+        if (formData.isActive === "") {
+            errors.isActive = "Vui lòng chọn trạng thái.";
+        }
+
+        setErrorMessages(errors);
+        return Object.keys(errors).length === 0;
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -29,6 +68,7 @@ function UserCreate() {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
         try {
             console.log(formData);
             
@@ -70,6 +110,7 @@ function UserCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.userName && <span className="text-danger">{errorMessages.userName}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -81,6 +122,7 @@ function UserCreate() {
                                 type="email"
                                 className='form-control'
                             />
+                            {errorMessages.email && <span className="text-danger">{errorMessages.email}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -92,6 +134,7 @@ function UserCreate() {
                                 type="number"
                                 className='form-control'
                             />
+                            {errorMessages.phone && <span className="text-danger">{errorMessages.phone}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -103,6 +146,7 @@ function UserCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.fullName && <span className="text-danger">{errorMessages.fullName}</span>}
                         </div>
                         <div className="col-lg-6">
                             <label>Mật Khẩu</label>
@@ -113,6 +157,7 @@ function UserCreate() {
                                 type="password"
                                 className='form-control'
                             />
+                            {errorMessages.password && <span className="text-danger">{errorMessages.password}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -128,6 +173,7 @@ function UserCreate() {
                                 <option value="2">Nhân Viên</option>
                                 <option value="3">Khách Hàng</option>
                             </select>
+                            {errorMessages.roleId && <span className="text-danger">{errorMessages.roleId}</span>}
                         </div>
 
                         <div className='col-lg-4'>
@@ -142,6 +188,7 @@ function UserCreate() {
                                 <option value="true">Hoạt Động</option>
                                 <option value="false">Ngừng Hoạt Động</option>
                             </select>
+                            {errorMessages.isActive && <span className="text-danger">{errorMessages.isActive}</span>}
                         </div>
 
                         <div className='col-lg-4 mt-3'>

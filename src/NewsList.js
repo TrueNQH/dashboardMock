@@ -18,7 +18,7 @@ function NewsList() {
 
   let getDatas = async () => {
     try {
-      const datas = await axios.get("http://localhost:8080/api/news/list", {
+      const datas = await axios.get("http://localhost:8080/api/news?size=20", {
         headers: {
           Authorization: token
         }

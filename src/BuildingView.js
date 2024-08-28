@@ -11,26 +11,42 @@ function BuildingView() {
      const token = decryptToken(localStorage.getItem('token'));
     useEffect(() => {
         //On Load
-        
+        getCategory();
         getData();
        
     }, []);
-    let getCategory = async (id) => {
+    let getCategory = async () => {
         
         
-        try {
-            const categoryData = await axios.get('http://localhost:8080/category/' + id, {
-                headers: {
-                    Authorization: token
+       
+            try {
+                const categoryData = await axios.get('http://localhost:8080/category/list', {
+                    headers: {
+                        Authorization: token
+                    }
+                });
+                console.log(categoryData.data.data);
+                setCategory(categoryData.data.data);
+            
+            } catch (error) {
+                console.log(error);
+                setLoading(false);
+            }
+            console.log(category);
+       
+        
+        
+    }
+    let renderCategory= (id) => {
+        return category.map((i, index) => {
+          return id.map((item, index) => {
+          
+                if(item === i.categoryId) {
+                    return i.categoryDes
                 }
-            });
-            console.log(categoryData.data.data);
-            setCategory(categoryData.data.data);
-            setLoading(false);
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
-        }
+           })
+            
+        })
     }
     let getData = async () => {
         try {
@@ -44,13 +60,14 @@ function BuildingView() {
             setUserList(user.data.data);
            
             
-            getCategory(userList.categoryId);
+            
             setLoading(false);
         } catch (error) {
             console.log(error);
             setLoading(false);
         }
     }
+    console.log(renderCategory(userList.categoryId));
     
     const imgUrls = userList.image ? userList.image.split(',') : [];
     return (
@@ -75,7 +92,7 @@ function BuildingView() {
                                     <th>Phòng tắm</th>
                                     <th>Giá</th>
                                     <th>Loại</th>
-                                    <th>Người Quản Lý</th>
+                                    <th>Người Tạo</th>
                                    
                                     </tr>
                                 </thead>
@@ -85,9 +102,11 @@ function BuildingView() {
                                     <td>{userList.buildingName}</td>
                                     <td>{userList.street}, {userList.ward}, {userList.district}</td>
                                     <td>{userList.bedRoom}</td>
-                                    <td>{userList.bathRoom}</td>                                    
+                                    <td> <span>{userList.bathRoom}</span> </td>                                    
                                     <td>{userList.price}</td>                                   
-                                    <td>{category.categoryDes}</td>
+                                    <td>
+                                        {renderCategory(userList.categoryId)}
+                                    </td>
                                     <td>{userList.createdBy }</td>
                                     </tbody>
                                 </table>

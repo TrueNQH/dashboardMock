@@ -6,6 +6,7 @@ import {  decryptToken } from './hashToken';
 function BuildingCreate() {
     const params = useParams();
     const [isLoading, setLoading] = useState(false);
+    const [errorMessages, setErrorMessages] = useState({});
     const [formData, setFormData] = useState({
         district: "",
         ward: "",
@@ -17,7 +18,7 @@ function BuildingCreate() {
         bathRoom: 0,
         juridical: "",
         area: "",
-        categoryId: 1,
+        categoryId: [],
         image: "",
         direction: "",
         juridical: "",
@@ -45,7 +46,38 @@ function BuildingCreate() {
         }
         fetchCategories();
     }, [token]);
+    const validateForm = () => {
+        let errors = {};
 
+        // Kiểm tra các trường bắt buộc
+        if (!formData.buildingName) errors.buildingName = "Tên tòa nhà là bắt buộc.";
+        if (!formData.street) errors.street = "Đường là bắt buộc.";
+        if (!formData.ward) errors.ward = "Phường là bắt buộc.";
+        if (!formData.district) errors.district = "Quận là bắt buộc.";
+        if (!formData.price || isNaN(formData.price)) errors.price = "Giá cả phải là số và không được để trống.";
+        if (!formData.area || isNaN(formData.area)) errors.area = "Diện tích phải là số và không được để trống.";
+        if (!formData.juridical) errors.juridical = "Giấy tờ pháp lý là bắt buộc.";
+        if (formData.categoryId.length === 0) errors.categoryId = "Phải chọn ít nhất một loại.";
+        
+        setErrorMessages(errors);
+        return Object.keys(errors).length === 0;
+    };
+    const handleCheckboxChange = (e) => {
+        const { value, checked } = e.target;
+        if (checked) {
+            // Add selected value to categoryId array
+            setFormData({
+                ...formData,
+                categoryId: [...formData.categoryId, value]
+            });
+        } else {
+            // Remove unselected value from categoryId array
+            setFormData({
+                ...formData,
+                categoryId: formData.categoryId.filter(id => id !== value)
+            });
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -57,8 +89,11 @@ function BuildingCreate() {
 
     
     const handleSubmit = async (e) => {
+
         e.preventDefault();
-       
+        if (!validateForm()) return;
+        console.log(formData);
+        
         
             await axios.post(`http://localhost:8080/api/building`, formData, {
                 headers: {
@@ -114,6 +149,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.buildingName && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -125,6 +161,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.street && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -136,6 +173,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.ward && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
 
                         <div className="col-lg-6">
@@ -147,6 +185,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.district && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
 
                         <div className="col-lg-3">
@@ -158,6 +197,7 @@ function BuildingCreate() {
                                 type="number"
                                 className='form-control'
                             />
+                            {errorMessages.price && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Giá bằng chữ</label>
@@ -168,6 +208,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.priceDescription && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Giấy tờ pháp lý</label>
@@ -178,6 +219,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.juridical && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Hướng Nhà</label>
@@ -188,6 +230,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.direction && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Phòng bếp</label>
@@ -198,6 +241,7 @@ function BuildingCreate() {
                                 type="number"
                                 className='form-control'
                             />
+                            {errorMessages.bathRoom && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Phòng Ngủ</label>
@@ -208,6 +252,7 @@ function BuildingCreate() {
                                 type="number"
                                 className='form-control'
                             />
+                            {errorMessages.bedRoom && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Diện tích tổng</label>
@@ -218,6 +263,7 @@ function BuildingCreate() {
                                 type="number"
                                 className='form-control'
                             />
+                            {errorMessages.area && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-3">
                             <label>Địa chỉ map</label>
@@ -228,6 +274,7 @@ function BuildingCreate() {
                                 type="text"
                                 className='form-control'
                             />
+                            {errorMessages.map && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
 
                         <div className='col-lg-3'>
@@ -242,6 +289,7 @@ function BuildingCreate() {
                                 <option value="true">true</option>
                                 <option value="false">false</option>
                             </select>
+                            {errorMessages.isRent && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className='col-lg-3'>
                             <label>Đang Bán</label>
@@ -255,22 +303,7 @@ function BuildingCreate() {
                                 <option value="true">true</option>
                                 <option value="false">false</option>
                             </select>
-                        </div>
-                        <div className='col-lg-3'>
-                            <label>Loại</label>
-                            <select
-                                name='categoryId'
-                                value={formData.categoryId}
-                                onChange={handleChange}
-                                className='form-control'
-                            >
-                               <option value="">----Select----</option>
-                                {categoryData.map((category) => (
-                                    <option key={category.categoryId} value={category.categoryId}>
-                                        {category.categoryDes}
-                                    </option>
-                                ))}
-                            </select>
+                            {errorMessages.isSell && <span className="text-danger">{errorMessages.buildingName}</span>}
                         </div>
                         <div className="col-lg-6">
                             <label>Upload Image</label>
@@ -280,7 +313,27 @@ function BuildingCreate() {
                                 onChange={handleImageUpload}
                                 multiple
                             />
+                            
                         </div>
+                        <div className='col-lg-12'>
+                            <label>Loại</label>
+                            <div>
+                                {categoryData.map((category) => (
+                                    <div key={category.categoryId} className='col-lg-5' >
+                                        <input
+                                            
+                                            type="checkbox"
+                                            value={category.categoryId}
+                                            onChange={handleCheckboxChange}
+                                            checked={formData.categoryId.includes(category.categoryId.toString())}
+                                        /> 
+                                        <label className='ml-1'> {category.categoryDes}</label>
+                                    </div>
+                                ))}
+                            </div>
+                            {errorMessages.categoryId  && <span className="text-danger">{errorMessages.buildingName}</span>}
+                        </div>
+                       
                         <div className='col-lg-3 mt-3'>
                             <input
                                 disabled={isLoading}

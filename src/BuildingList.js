@@ -1,12 +1,12 @@
 import { faUser } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import {  decryptToken } from './hashToken';
 
 function BuildingList() {
-
+  const navigate = useNavigate()
   const [dataList, setDataList] = useState([]);
   const [isLoading, setLoading] = useState(true);
    const token = decryptToken(localStorage.getItem('token'));
@@ -24,12 +24,14 @@ function BuildingList() {
         }
       });
       setDataList(datas.data.data);
-     
+      console.log(datas.data);
       setLoading(false);
     } catch (error) {
       console.log(error);
       alert("Phiên đăng nhập đã hết hạn");
-      navigator("/")
+      localStorage.clear();
+      navigate("/")
+      
     }
   }
 
@@ -43,10 +45,7 @@ function BuildingList() {
           headers: {
             Authorization: token
           }
-          
-        
         }
-        
         ).then((res) => {
           console.log(res);
         });

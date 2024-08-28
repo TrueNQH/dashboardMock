@@ -24,7 +24,7 @@ function Userlist() {
         }
       });
       setUserList(users.data.data);
-      
+      console.log(users.data);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -35,7 +35,11 @@ function Userlist() {
     try {
       const confirmDelete = window.confirm("Are you sure do you want to delete the data?");
       if (confirmDelete) {
-        await axios.delete(`http://localhost:8080/user-manage/${id}`).then((res) => {
+        await axios.delete(`http://localhost:8080/user-manage/${id}`, {
+          headers: {
+            Authorization: token
+          }
+        }).then((res) => {
           console.log(res);
         });
         getUsers();

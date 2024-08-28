@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode';
 import {  decryptToken } from './hashToken';
 function Topbar() {
+    
     const token = decryptToken(localStorage.getItem('token'));
     const decodedToken = jwtDecode(token);
     const username = decodedToken.username;
-    // role decodedToken.authorities
 
     return (
         <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">

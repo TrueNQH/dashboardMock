@@ -58,14 +58,14 @@ function UserEdit() {
                     
                 }
             }).then((res) => {
-                console.log(res.data.message);
                 
-            })
-
             if(res.data.message == "Successfully") {
                 navigate("/portal/user-list");
 
                 }
+                
+            })
+
             
         } catch (error) {
             console.log(error);
