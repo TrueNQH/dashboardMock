@@ -4,12 +4,21 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import {  decryptToken } from './hashToken';
+import { jwtDecode } from 'jwt-decode';
+
 
 function NewsList() {
 
   const [dataList, setDataList] = useState([]);
   const [isLoading, setLoading] = useState(true);
    const token = decryptToken(localStorage.getItem('token'));
+   const decodedToken = jwtDecode(token);
+   let url = ""
+    if(decodedToken.authorities == "ROLE_MANAGER") {
+       url = "http://localhost:8080/api/news";
+    } else if(decodedToken.authorities == "ROLE_STAFF") {
+       url = "http://localhost:8080/api/news/list/";
+    }
   useEffect(() => {
     //On Load
     getDatas();
@@ -17,14 +26,18 @@ function NewsList() {
   }, []);
 
   let getDatas = async () => {
+    
     try {
-      const datas = await axios.get("http://localhost:8080/api/news?size=20", {
+      console.log(url);
+      
+      const datas = await axios.get(url + "?size=20", {
         headers: {
           Authorization: token
         }
       });
       setDataList(datas.data.data);
-     
+      console.log(datas.data.data);
+      
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -37,7 +50,9 @@ function NewsList() {
     try {
       const confirmDelete = window.confirm("Are you sure do you want to delete the data?");
       if (confirmDelete) {
-        await axios.delete(`http://localhost:8080/api/news/${id}`, {
+        console.log(url + "/" +id);
+        
+        await axios.delete("http://localhost:8080/api/news/" + id, {
           headers: {
             Authorization: token
           }

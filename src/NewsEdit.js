@@ -1,63 +1,71 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams,  } from 'react-router-dom';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; 
-import {  decryptToken } from './hashToken';
-
+import 'react-quill/dist/quill.snow.css';
+import { decryptToken } from './hashToken';
+import { htmlToText } from 'html-to-text';
 function NewsEdit() {
     const params = useParams();
+   
     const [isLoading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        
-        "title": "",
-        "content": "",
-        "image": ""
+       
     });
     const navigate = useNavigate();
-     const token = decryptToken(localStorage.getItem('token'));
-    const handleContentChange = (value) => {
-        setFormData({
-            ...formData,
-            content: value
-        });
+    const token = decryptToken(localStorage.getItem('token'));
+    useEffect(() => {
+        getData();
+    }, []);
+    // Convert HTML to plain text
+    const stripHtmlTags = (html) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
     }
+    const handleContentChange = (value) => {
+            setFormData({
+                ...formData,
+                content: value // Lưu nội dung không chứa thẻ HTML
+            });
+        
+    };
+    
+
     const handleImageUpload = async (e) => {
         const files = e.target.files;
         const uploadPromises = [];
         setLoading(true);
-      
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('upload_preset', 'cloudinaryApp'); // Thay bằng upload preset của bạn từ Cloudinary
-      
-          const uploadPromise = axios.post(
-            'https://api.cloudinary.com/v1_1/dt0kv3yml/image/upload', // Thay bằng Cloudinary URL của bạn cho image
-            formData
-          ).then(response => response.data.secure_url);
-      
-          uploadPromises.push(uploadPromise);
-        }
-      
-        try {
-          const uploadedUrls = await Promise.all(uploadPromises);
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            image: uploadedUrls.join(','), // Lưu tất cả URL vào formData, phân tách bằng dấu phẩy
-          }));
-          setLoading(false);
-        } catch (error) {
-          console.error('Error uploading files:', error);
-          setLoading(false);
-        }
-      };
-    useEffect(() => {
-        getUserData();
-    }, []);
 
-    const getUserData = async () => {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'cloudinaryApp');
+
+            const uploadPromise = axios.post(
+                'https://api.cloudinary.com/v1_1/dt0kv3yml/image/upload',
+                formData
+            ).then(response => response.data.secure_url);
+
+            uploadPromises.push(uploadPromise);
+        }
+
+        try {
+            const uploadedUrls = await Promise.all(uploadPromises);
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                image: uploadedUrls.join(','),
+            }));
+            setLoading(false);
+        } catch (error) {
+            console.error('Error uploading files:', error);
+            setLoading(false);
+        }
+    };
+
+    
+
+    const getData = async () => {
         try {
             const user = await axios.get(`http://localhost:8080/api/news/${params.id}`, {
                 headers: {
@@ -65,7 +73,7 @@ function NewsEdit() {
                 }
             });
             setFormData(user.data.data);
-            setLoading(false);
+            
         } catch (error) {
             console.log(error);
         }
@@ -79,20 +87,18 @@ function NewsEdit() {
         });
     }
 
-    
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(token);
         console.log(formData);
-        
-            await axios.post(`http://localhost:8080/api/news`, formData, {
-                headers: {
-                    Authorization: token
-                }
-            }).then(res => console.log(res.data))
-            navigate("/portal/news-list");
+
+        await axios.post(`http://localhost:8080/api/news`, formData, {
+            headers: {
+                Authorization: token
+            }
+        }).then(res => console.log(res.data))
+        navigate("/portal/news-list");
     }
-    
 
     return (
         <>
@@ -104,14 +110,12 @@ function NewsEdit() {
                             <label>Tiêu đề</label>
                             <input
                                 name='title'
-                                value={formData.title}
+                                    value={formData.title}
                                 onChange={handleChange}
                                 type="text"
                                 className='form-control'
                             />
                         </div>
-
-                        
 
                         <div className="col-lg-6">
                             <label>Hình ảnh</label>
@@ -122,10 +126,9 @@ function NewsEdit() {
                                 multiple
                             />
                         </div>
-                        <div className="col-lg-12" >
+                        <div className="col-lg-12">
                             <label>Nội dung</label>
-                            <ReactQuill  value={formData.content} onChange={handleContentChange} />
-                           
+                            <ReactQuill value={formData.content} onChange={handleContentChange} />
                         </div>
 
                         <div className='col-lg-4 mt-3'>

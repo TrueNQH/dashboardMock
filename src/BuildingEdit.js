@@ -155,14 +155,21 @@ function BuildingEdit() {
                         </div>
 
                         <div className="col-lg-6">
-                            <label>Quận</label>
-                            <input
-                                name='district'
-                                value={formData.district}
-                                onChange={handleChange}
-                                type="text"
-                                className='form-control'
-                            />
+                            <label >Quận</label>
+                            <select
+                            className='form-control'
+                            name='district'
+                            onChange={handleChange}
+                            value={formData.district}
+                            >
+                                <option value="">{formData.district}</option>
+                                <option value="THANH_KHE">THANH KHE</option>
+                                <option value="NGU_HANH_SON">NGU HANH SON</option>
+                                <option value="HAI_CHAU">HAI CHAU</option>
+                                <option value="SON_TRA">SON TRA</option>
+                                <option value="HOA_VANG">HOA VANG</option>
+                                <option value="HOANG_SA">HOANG SA</option>
+                            </select>
                         </div>
 
                         <div className="col-lg-3">
@@ -197,16 +204,23 @@ function BuildingEdit() {
                         </div>
                         <div className="col-lg-3">
                             <label>Hướng Nhà</label>
-                            <input
-                                name='direction'
+                            <select name='direction'
                                 value={formData.direction}
                                 onChange={handleChange}
-                                type="text"
-                                className='form-control'
-                            />
+                                className='form-control'>
+                                <option value="">{formData.direction}</option>
+                                <option value="east">Đông</option>
+                                <option value="west">Tây</option>
+                                <option value="south">Nam</option>
+                                <option value="north">Bắc</option>
+                                <option value="northeast">Đông Bắc</option>
+                                <option value="southeast">Đông Nam</option>
+                                <option value="northwest">Tây Nam</option>
+                                <option value="southwest">Tây bắc</option>
+                            </select>
                         </div>
                         <div className="col-lg-3">
-                            <label>Phòng bếp</label>
+                            <label>Phòng Tắm</label>
                             <input
                                 name='bathRoom'
                                 value={formData.bathRoom}

@@ -49,8 +49,8 @@ function NewsView() {
                            
                             <h1 class="fw-bolder mb-1">{data.title}</h1>
                            
-                            <div class="text-muted fst-italic mb-2">Thời gian: {data.createdDate.split("T")[1]}</div>
-                            <div class="text-muted fst-italic mb-2">Ngày: {data.createdDate.split("T")[0]}</div>
+                            <div class="text-muted fst-italic mb-2">Thời gian: {data.createdDate ? data.createdDate.split("T")[1] : ""}</div>
+                            <div class="text-muted fst-italic mb-2">Ngày: {data.createdDate ? data.createdDate.split("T")[0] : ""}</div>
                          
                             
                         </header>

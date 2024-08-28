@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {  decryptToken } from './hashToken';
-
+import { jwtDecode } from 'jwt-decode';
 function NewsCreate() {
     
     const [isLoading, setLoading] = useState(false);
@@ -17,10 +17,8 @@ function NewsCreate() {
     });
     const navigate = useNavigate();
      const token = decryptToken(localStorage.getItem('token'));
-   
-   
-
-    
+     const decodedToken = jwtDecode(token);
+     
 
     const handleChange = (e) => {
         const { name, value } = e.target;
